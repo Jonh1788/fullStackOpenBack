@@ -1,7 +1,9 @@
+require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
 const app = express()
 const cors = require('cors')
+const Person = require('./models/Person')
 
 const unknownEndpoint = (req, res) => {
   res.status(404).send({error:'unknown endpoint'})
@@ -48,8 +50,12 @@ morgan.token('persons', (req, res) => {
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :persons'))
 
 
-app.get('/api/persons', (request, response) => {
-	response.status(200).json(phonebook)
+app.get('/api/persons', (req, res) => {
+  
+  Person.find({}).then(result => {
+    res.json(result)
+  })
+	
 })
 
 
@@ -121,7 +127,7 @@ app.post('/api/persons', (req, res) => {
 	
 
 app.use(unknownEndpoint)
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
 	console.log(`Server running on port ${PORT}`)
 })
