@@ -1,6 +1,10 @@
 const express = require('express')
-
+const morgan = require('morgan')
 const app = express()
+
+const unknownEndpoint = (req, res) => {
+  res.status(404).send({error:'unknown endpoint'})
+}
 
 let phonebook = [
     { 
@@ -25,10 +29,24 @@ let phonebook = [
     }
 ]
 
+const gerarId = () => {
+  return Math.floor(Math.random() * 1000)
+}
+
 app.use(express.json())
 
+morgan.token('persons', (req, res) => {
+  if(Object.keys(req.body).length > 0){
+    return JSON.stringify(req.body)
+  }
+
+})
+
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :persons'))
+
+
 app.get('/api/persons', (request, response) => {
-	response.json(phonebook)
+	response.status(200).json(phonebook)
 })
 
 
@@ -47,7 +65,7 @@ app.get('/api/persons/:id', (request, response) => {
 app.get('/info', (req, res) => {
 	const date = new Date()
 	
-	res.send(`Phonebook has info for ${phonebook.length} people\n${date}`)
+	res.send(`<p>Phonebook has info for ${phonebook.length} people</p><p>${date}</p>`)
 })
 
 app.delete('/api/persons/:id', (req, res) => {
@@ -55,15 +73,50 @@ app.delete('/api/persons/:id', (req, res) => {
 	const id = Number(req.params.id)
 	phonebook = phonebook.filter(person => person.id !== id)
 
-	return res.json(phonebook)
+	return res.status(204).json(phonebook)
 })
 
 app.post('/api/persons', (req, res) => {
 
-	console.log(req.body)
-	return res.json(req.body)
+	
+
+  if(req.body.name){
+    const existsInPhonebook = phonebook.some(person => person.name.toLowerCase() === req.body.name.toLowerCase())
+    if(existsInPhonebook){
+      return res.status(400).send({error: 'Name must be unique'})
+    }
+  } else {
+    return res.status(400).send({error: 'Name not exists'})
+  }
+
+  if(req.body.number){
+    const existsInPhonebook = phonebook.some(person => person.number === req.body.number)
+    if(existsInPhonebook){
+      return res.status(400).send({error: 'Number must be unique'})
+    }
+  } else {
+
+    return res.status(400).send({error: 'Number not exists'})
+  }
+
+
+    const newPerson = {
+      id: gerarId(),
+      name: req.body.name,
+      number: req.body.number
+    }
+    
+
+    phonebook.push(newPerson)
+    return res.json(phonebook)
+  
+
 
 })
+
+	
+
+app.use(unknownEndpoint)
 const PORT = 3001
 app.listen(PORT, () => {
 	console.log(`Server running on port ${PORT}`)
