@@ -1,0 +1,26 @@
+{
+  "name": "fullstackopenback",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+ 	"start":"node index.js",
+	"dev":"nodemon index.js"
+	},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jonh1788/fullStackOpenBack.git"
+  },
+  "author": "Jonathan Santos",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Jonh1788/fullStackOpenBack/issues"
+  },
+  "homepage": "https://github.com/Jonh1788/fullStackOpenBack#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
