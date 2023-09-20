@@ -61,14 +61,11 @@ app.get('/api/persons', (req, res) => {
 
 app.get('/api/persons/:id', (request, response) => {
 
-	const id = Number(request.params.id)
-	const person = phonebook.find(person => person.id === id)
 	
-	if(person){
-		return response.json(person)
-	}
-	response.statusMessage = 'Person not found'
-	return response.status(404).end()
+	Person.findById(request.params.id)
+	.then(person => response.json(person))
+	.catch(err => response.status(404).send({error:'Not found'}))
+	
 })
 
 app.get('/info', (req, res) => {
@@ -87,7 +84,7 @@ app.delete('/api/persons/:id', (req, res) => {
 
 app.post('/api/persons', (req, res) => {
 
-	
+   console.log(req.body)
 
   if(req.body.name){
     const existsInPhonebook = phonebook.some(person => person.name.toLowerCase() === req.body.name.toLowerCase())
@@ -109,16 +106,15 @@ app.post('/api/persons', (req, res) => {
   }
 
 
-    const newPerson = {
-      id: gerarId(),
-      name: req.body.name,
-      number: req.body.number
-    }
+    const newPerson = new Person({
+	  name: req.body.name,
+	  number: req.body.number
+	})
     
 
-    phonebook.push(newPerson)
-    console.log(newPerson)
-    return res.status(200).json(newPerson)
+    newPerson.save().then(result => {
+	 return res.json(result)
+	})
   
 
 
